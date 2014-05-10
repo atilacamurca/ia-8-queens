@@ -1,0 +1,52 @@
+/* Space out content a bit */
+body {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Custom page header */
+.header {
+  border-bottom: 1px solid #e5e5e5;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+  padding-bottom: 19px;
+}
+
+/* Custom page footer */
+.footer {
+  padding-top: 19px;
+  color: #777;
+  border-top: 1px solid #e5e5e5;
+}
+
+.cell {
+    width: 72px;
+    height: 72px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.cell-black {
+    background-color: #111;
+}
+
+img.queen {
+    width: 60px;
+}
+
+table.board {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
