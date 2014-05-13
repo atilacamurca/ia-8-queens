@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('ia8queensApp')
-    .controller('MainCtrl', function ($scope) {
+    .controller('MainCtrl', function ($scope, HillClimbing, Problem) {
         $scope.board = [
             [0, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 1, 0, 0],

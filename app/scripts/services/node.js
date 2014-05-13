@@ -27,14 +27,43 @@ angular.module('ia8queensApp')
             expand: function (problem) {
                 var actions = problem.actions(this.state) || [];
                 var len = actions.length;
+                var result = [];
                 for (var i = 0; i < len; i++) {
-                    this.childNode(problem, actions[i]);
+                    result.push(this.childNode(problem, actions[i]));
                 }
+                return result;
             },
             childNode: function (problem, action) {
                 next = problem.result(this.state, action);
                 return new Node(next, this, action,
                     problem.pathCost(this.pathCost, this.state, action, next));
+            },
+            /**
+             * Return the sequence of actions to go from the root to this node.
+             */
+            solution: function () {
+                var result = [];
+                var path = this.path();
+                var len = path.length;
+                for (var i = 1; i < len; i++) {
+                    result.push(path[i].action);
+                }
+                return result;
+            },
+            /**
+             * Return a list of nodes forming the path from the root to this node.
+             */
+            path: function () {
+                var node = this;
+                var pathBack = [];
+                while (node) {
+                    pathBack.unshift(node);
+                    node = node.parent;
+                }
+                return pathBack;
+            },
+            equals: function (other) {
+                return (other instanceof Node) && this.state === other.state;
             }
         });
     });
