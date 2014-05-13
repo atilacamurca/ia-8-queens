@@ -23,6 +23,8 @@ angular.module('ia8queensApp')
                 var neighbor = argmax_random_tie(neighbors, function (node) {
                     return problem.value(node.state);
                 });
+                console.log("neighbor: ", neighbor);
+                console.log("neighbor value: ", problem.value(neighbor.state), ", current node value: ", problem.value(currentNode.state));
                 
                 if (problem.value(neighbor.state) <= problem.value(currentNode.state)) {
                     break;

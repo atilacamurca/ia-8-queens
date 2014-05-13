@@ -2,6 +2,41 @@
 
 angular.module('ia8queensApp')
     .factory('NQueensProblem', function (Problem) {
+        /* private methods */
+        
+        /**
+         * returns the number of conflicted queens
+         */
+        function numConflicted(state, row, col) {
+            var result = 0;
+            for (var i = 0; i < col; i++) {
+                result += numConflicts(row, col, state[i], i);
+            }
+            return result;
+        }
+        
+        function numConflicts(rowA, colA, rowB, colB) {
+            var result = 0;
+            
+            if (rowA === rowB) {
+                result += 1;
+            }
+            
+            if (colA === colB) {
+                result += 1;
+            }
+            
+            if (rowA - colA === rowB - colB) {
+                result += 1;
+            }
+            
+            if (rowA + colA === rowB + colB) {
+                result += 1;
+            }
+            console.log("num conflicts: ", result);
+            return result;
+        }
+        
         var NQueensProblem = Problem.extend({
             /**
              * @param boardSize int default 8
@@ -19,6 +54,7 @@ angular.module('ia8queensApp')
              * In the leftmost empty column, try all non-conflicting rows.
              */
             actions: function (state) {
+                // TODO: refazer este trecho para não depender de valores null no state.
                 var len = state.length;
                 if (state[len - 1] !== null) {
                     return [];
@@ -92,7 +128,16 @@ angular.module('ia8queensApp')
             value: function (state) {
                 // TODO: usar heurística de
                 // https://code.google.com/p/aima-java/source/browse/trunk/aima-core/src/main/java/aima/core/environment/nqueens/AttackingPairsHeuristic.java
-                return 0;
+                var len = state.length;
+                var result = 0;
+                for (var col = 0; col < len; col++) {
+                    if (state[col] === null) {
+                        continue;
+                    }
+                    result += numConflicted(state, state[col], col);
+                }
+                console.log("result: ", result);
+                return result;
             }
         });
         

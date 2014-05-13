@@ -12,8 +12,8 @@ angular.module('ia8queensApp')
              */
             init: function (state, parent, action, pathCost) {
                 this.state = state;
-                this.parent = parent;
-                this.action = action;
+                this.parent = parent || null;
+                this.action = action | null;
                 this.pathCost = pathCost || 0;
                 this.depth = 0;
 
@@ -26,6 +26,7 @@ angular.module('ia8queensApp')
              */
             expand: function (problem) {
                 var actions = problem.actions(this.state) || [];
+                console.log("actions: ", actions);
                 var len = actions.length;
                 var result = [];
                 for (var i = 0; i < len; i++) {
