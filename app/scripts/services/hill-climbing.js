@@ -1,18 +1,22 @@
 'use strict';
 
 angular.module('ia8queensApp')
-    .factory('HillClimbing', function (Node) {
+    .factory('hillClimbing', function (Node) {
         /**
          * From the initial node, keep choosing the neighbor with highest value,
          * stopping when no neighbor is better.
          * @param problem instance of Class Problem
          */
-        function hillClimbing (problem) {
+        function solve (problem) {
             var currentNode = new Node(problem.initial);
-            var tmp_limit = 1000, limit = 0;
+            var tmp_limit = 10000, limit = 0;
             while (true && tmp_limit > limit) {
+                
+                console.log("state: ", currentNode.state); // debug
+                
                 var neighbors = currentNode.expand(problem);
                 if (neighbors.length === 0) {
+                    console.log("no neighbors.") // debug
                     break;
                 }
                 
@@ -28,4 +32,8 @@ angular.module('ia8queensApp')
             }
             return currentNode.state;
         }
+        
+        return {
+            solve: solve
+        };
     });

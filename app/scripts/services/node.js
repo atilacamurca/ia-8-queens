@@ -14,7 +14,7 @@ angular.module('ia8queensApp')
                 this.state = state;
                 this.parent = parent;
                 this.action = action;
-                this.pathCost = pathCost;
+                this.pathCost = pathCost || 0;
                 this.depth = 0;
 
                 if (parent != null) {
@@ -31,10 +31,11 @@ angular.module('ia8queensApp')
                 for (var i = 0; i < len; i++) {
                     result.push(this.childNode(problem, actions[i]));
                 }
+                console.log("expanded nodes: ", result); // debug
                 return result;
             },
             childNode: function (problem, action) {
-                next = problem.result(this.state, action);
+                var next = problem.result(this.state, action);
                 return new Node(next, this, action,
                     problem.pathCost(this.pathCost, this.state, action, next));
             },
@@ -66,4 +67,6 @@ angular.module('ia8queensApp')
                 return (other instanceof Node) && this.state === other.state;
             }
         });
+        
+        return Node;
     });
