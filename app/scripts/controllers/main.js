@@ -20,6 +20,8 @@ angular.module('ia8queensApp')
             return isBlack;
         };
         
-        var solution = hillClimbing.solve(new NQueensProblem());
+        var problem = new NQueensProblem();
+        var solution = hillClimbing.solve(problem);
         console.log(solution);
+        console.log(problem.goalTest(solution));
     });

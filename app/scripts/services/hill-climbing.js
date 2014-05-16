@@ -9,7 +9,7 @@ angular.module('ia8queensApp')
          */
         function solve (problem) {
             var currentNode = new Node(problem.initial);
-            var tmp_limit = 10000, limit = 0;
+            var tmp_limit = 100000, limit = 0;
             while (true && tmp_limit > limit) {
                 
                 console.log("state: ", currentNode.state); // debug
