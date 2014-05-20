@@ -129,13 +129,26 @@ angular.module('ia8queensApp')
             value: function (state) {
                 // TODO: usar heurística de
                 // https://code.google.com/p/aima-java/source/browse/trunk/aima-core/src/main/java/aima/core/environment/nqueens/AttackingPairsHeuristic.java
+                // https://code.google.com/p/n-queens-hillclimb/source/browse/trunk/src/Board.java
                 var len = state.length;
                 var result = 0;
-                for (var col = 0; col < len; col++) {
-                    /*if (state[col] === null) {
-                        continue;
-                    }*/
-                    result += numConflicted(state, state[col], col);
+                for (var i = 0; i < len; i++) {
+                    for (var j = 1; j + i < len; j++) {
+                        // row
+                        if (state[i] === state[j + i]) {
+                            result++;
+                        }
+                        
+                        // upper diagonal
+                        if (state[i] - j === state[j + i]) {
+                            result++;
+                        }
+                        
+                        // lower diagonal
+                        if (state[i] + j === state[j + i]) {
+                            result++;
+                        }
+                    }
                 }
                 console.log("result: ", result);
                 return result;
