@@ -23,6 +23,7 @@ angular.module('ia8queensApp')
                 this.nextMutation = 0; // For scheduling mutations.
                 this.mutations = 0;
                 this.population = [];
+                this.solution = null;
             },
             getExclusiveRandomInteger: function (high, numberA) {
                 numberB = 0;
@@ -33,7 +34,7 @@ angular.module('ia8queensApp')
                 }
                 return numberB;
             },
-            getExclusiveRandomIntegerByArray(low, high, arrayA) {
+            getExclusiveRandomIntegerByArray: function (low, high, arrayA) {
                 var done = false;
                 var getRand = 0;
                 if (high !== low) {
@@ -68,9 +69,9 @@ angular.module('ia8queensApp')
                 var maxChromo = new Chromosome(this.mMaxLength);
                 var maximum = 0;
                 var foundNewMaximum = false;
-                //var done = false;
+                var done = false;
                 
-                while (true) {
+                while (! done) {
                     foundNewMaximum = false;
                     popSize = this.population.length;
                     for (var i = 0; i < popSize; i++) {
@@ -86,8 +87,8 @@ angular.module('ia8queensApp')
                     }
                     
                     if (!foundNewMaximum) {
-                        // done = true;
-                        break;
+                        done = true;
+                        //break;
                     }
                 }
                 
@@ -175,15 +176,15 @@ angular.module('ia8queensApp')
                 
                 // The worst score would be the one with the highest energy, best would be lowest.
                 chromo = this.population[this.getMaximum()];
-                worstScore = chromo.getConflicts();
+                worstScore = chromo.conflicts;
                 
                 // Convert to a weighted percentage.
                 chromo = this.population[this.getMinimum()];
-                bestScore = worstScore - chromo.getConflicts();
+                bestScore = worstScore - chromo.conflicts;
                 
                 for (var i = 0; i < popSize; i++) {
                     chromo = this.population[i];
-                    chromo.fitness = ((worstScore - chromo.getConflicts()) * 100.0 / bestScore);
+                    chromo.fitness = ((worstScore - chromo.conflicts) * 100.0 / bestScore);
                 }
             },
             rouletteSelection: function () {
@@ -259,7 +260,7 @@ angular.module('ia8queensApp')
                 }
                 return parentB;
             },
-            partiallyMappedCrossover(chromoA, chromoB, child1, child2) {
+            partiallyMappedCrossover: function (chromoA, chromoB, child1, child2) {
                 var thisChromo = this.population[chromoA],
                     thatChromo = this.population[chromoB],
                     newChromo1 = this.population[child1],
@@ -409,7 +410,146 @@ angular.module('ia8queensApp')
                 }
             },
             displacementMutation: function (index) {
+                var j           = 0,
+                    point1      = 0,
+                    length      = 0, // seems not used
+                    point2      = 0,
+                    tempArray1  = arrayOf(this.mMaxLength),
+                    tempArray2  = arrayOf(this.mMaxLength),
+                    thisChrome  = this.population[index];
                 
+                // Randomly choose a section to be displaced
+                point1 = _.random(0, this.mMaxLength);
+                // Generate re-insertion point
+                var candidate = this.mMaxLength - (point1 + 2);
+                if (candidate <= 0) {
+                    candidate = 1;
+                }
+                point2 = this.getExclusiveRandomInteger(candidate, point1);
+                
+                // Get non-chosen
+                for (var i = 0; i < this.mMaxLength; i++) {
+                    if (i < point1 || i > point1 + length) {
+                        tempArray1[j] = thisChrome.data[i];
+                        j++;
+                    }
+                }
+                
+                // Get chosen
+                j = 0;
+                for (var i = point1; i <= point1; i++) {
+                    tempArray2[j] = thisChrome.data[i];
+                    j++;
+                }
+                
+                // Place chosen
+                j = 0;
+                for (var i = point2; i <= point2; i++) {
+                    thisChrome.data[j] = tempArray2[j];
+                    j++;
+                }
+                
+                // Place non-chosen
+                j = 0;
+                for (var i = 0; i < this.mMaxLength; i++) {
+                    if (i < point2 || i > point2 + length) {
+                        thisChrome.data[i] = tempArray1[j];
+                        j++;
+                    }
+                }
+                this.mutations++;
+            },
+            doMating: function () {
+                var getRand         = 0,
+                    parentA         = 0,
+                    parentB         = 0,
+                    newChildIndex1  = 0,
+                    newChildIndex2  = 0,
+                    newChromo1      = null,
+                    newChromo2      = null;
+                
+                for (var i = 0; i < this.mOffspringPerGeneration; i++) {
+                    parentA = this.chooseFirstParent();
+                    // Test probability of mating
+                    getRand = _.random(0, 100);
+                    if (getRand <= this.mMatingProbability * 100) {
+                        parentB = this.chooseSecondParent(parentA);
+                        newChromo1 = new Chromosome(this.mMaxLength);
+                        newChromo2 = new Chromosome(this.mMaxLength);
+                        var len = this.population.push(newChromo1);
+                        var newIndex1 = len - 1;
+                        len = this.population.push(newChromo2);
+                        var newIndex2 = len - 1;
+                        
+                        this.partiallyMappedCrossover(parentA, parentB, newIndex1, newIndex2);
+                        if (this.childCount - 1 === this.nextMutation) {
+                            this.exchangeMutation(newIndex1, 1);
+                        } else if (this.childCount === this.nextMutation) {
+                            this.exchangeMutation(newIndex2, 1);
+                        }
+                        
+                        newChromo1 = this.population[newIndex1];
+                        newChromo1.computeConflicts();
+                        newChromo2 = this.population[newIndex2];
+                        newChromo2.computeConflicts();
+                        
+                        this.childCount += 2;
+                        // Schedule next mutation
+                        if ((this.childCount % this.mathRound(1.0 / this.mMutationRate)) == 0) {
+                            this.nextMutation = this.childCount + _.random(0, this.mathRound(1.0 / this.mMutationRate));
+                        }
+                    }
+                }
+            },
+            prepNextEpoch: function () {
+                var popSize      = 0,
+                    thisChromo   = null;
+                
+                // Reset flags for selected individuals
+                popSize = this.population.length;
+                for (var i = 0; i < popSize; i++) {
+                    thisChromo = this.population[i];
+                    thisChromo.selected = false;
+                }
+            },
+            solve: function () {
+                var popSize         = 0,
+                    thisChromo      = null,
+                    done            = false;
+                
+                this.mutations = 0;
+                this.nextMutation = _.random(0, this.mathRound(1.0 / this.mMutationRate));
+                
+                while (! done) {
+                    popSize = this.population.length;
+                    for (var i = 0; i < popSize; i++) {
+                        thisChromo = this.population[i];
+                        if (thisChromo.conflicts === 0 || this.epoch === this.mEpochs) {
+                            done = true;
+                        }
+                    }
+                    
+                    this.getFitness();
+                    this.rouletteSelection();
+                    this.doMating();
+                    this.prepNextEpoch();
+                    this.epoch++;
+                    console.log("Epoch: ", this.epoch);
+                }
+                
+                console.log("done.");
+                
+                if (this.epoch != this.mEpochs) {
+                    popSize = this.population.length;
+                    for (var i = 0; i < popSize; i++) {
+                        thisChromo = this.population[i];
+                        if (thisChromo.conflicts === 0) {
+                            this.solution = thisChromo;
+                        }
+                    }
+                }
+                console.log("Completed ", this.epoch, " epochs.");
+                console.log("Encountered ", this.mutations, " mutations in ", this.childCount, " offspring.");
             }
         });
 
