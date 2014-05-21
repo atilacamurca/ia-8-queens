@@ -42,7 +42,7 @@ angular.module('ia8queensApp')
                         tempx = x;
                         tempy = y;
                         //done = false;
-                        while (! done) {
+                        while (true) {
                             tempx += dx[j];
                             tempy += dy[j];
                             if ((tempx < 0 || tempx >= this.maxLength)

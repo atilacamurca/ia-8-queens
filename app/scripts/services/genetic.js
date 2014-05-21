@@ -26,7 +26,7 @@ angular.module('ia8queensApp')
                 this.solution = null;
             },
             getExclusiveRandomInteger: function (high, numberA) {
-                numberB = 0;
+                var numberB = 0;
                 while (true) {
                     numberB = _.random(0, high);
                     if (numberB !== numberA)
