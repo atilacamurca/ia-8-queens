@@ -9,10 +9,23 @@
 
 <div class="row" style="margin-top: 10px;">
 	<div class="col-md-3">
-		<a ng-click="solve()" class="btn btn-primary">
-			Solve it!
-		</a>
-		<div class="alert alert-warning" ng-if="message">
+        <div class="row">
+            <div class="col-md-6">
+                <label class="control-label">Strategy</label>
+                <select ng-model="strategy" ng-options="s for s in strategies"
+                        class="form-control"></select>
+            </div>
+            <div class="col-md-6" style="margin-top: 25px;">
+                <a ng-click="solve()" class="btn btn-primary btn-block">
+                    Solve it!
+                </a>
+            </div>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+            
+        </div>
+            
+		<div class="alert" ng-class="cls_message" ng-if="message"  style="margin-top: 10px;">
 			{{message}}
 		</div>
 	</div>

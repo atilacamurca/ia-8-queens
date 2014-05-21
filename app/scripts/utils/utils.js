@@ -39,3 +39,30 @@ function argmax_random_tie (array, callback) {
         return callback(x) * -1;
     });
 }
+
+/**
+ * @license Copyright 2014 - Chris West - MIT Licensed
+ */
+(function(RGX) {
+    fracPart = function(num) {
+        return +(+num).toExponential().replace(RGX, function(m, neg, num, dot, offset) {
+            var zeroes = Array(Math.abs(offset) + 2).join('0');
+            num = (zeroes + num + (dot ? '' : '.') + zeroes).split('.');
+            return +(neg + '.' + num.join('').slice(+offset + num[0].length));
+        });
+    };
+})(/(-?)(\d+(\.?)\d*)e(.+)/);
+
+/**
+ * returns an array of values with the especified size.
+ * @param size
+ * @param value default 0
+ */
+function arrayOf(size, value) {
+    value = value || 0;
+    var array = [];
+    for (var i = 0; i < size; i++) {
+        array[i] = 0;
+    }
+    return array;
+}

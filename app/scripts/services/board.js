@@ -17,12 +17,12 @@ angular.module('ia8queensApp')
                 ];
                 this.boardSize = this.matrix.length;
                 
-                /*for (var i = 0; i < this.boardSize; i++) {
+                for (var i = 0; i < this.boardSize; i++) {
                     var random = _.random(0, this.boardSize - 1);
                     this.matrix[i][random] = 1;
-                }*/
+                }
 				// initialize queens at random places
-				for (var i = 0; i < this.boardSize; i++) {
+				/*for (var i = 0; i < this.boardSize; i++) {
 					while (true) {
 						var rand_row = _.random(0, this.boardSize - 1);
 						var rand_col = _.random(0, this.boardSize - 1);
@@ -31,7 +31,7 @@ angular.module('ia8queensApp')
 							break;
 						}
 					}
-				}
+				}*/
                 // console.log("matrix board: ", this.print());
             },
             print: function () {

@@ -13,6 +13,9 @@ angular.module('ia8queensApp')
             [0, 0, 0, 0, 0, 1, 0, 0]
         ];
 		$scope.message = null;
+        $scope.cls_message = null;
+        $scope.strategies = ['hc', 'sa', 'g'];
+        $scope.strategy = 'hc';
         
         $scope.color = function(x, y) {
             var isBlack = (x % 2 === 0);
@@ -28,6 +31,12 @@ angular.module('ia8queensApp')
 		$scope.solve = function () {
         	var problem = new HillClimbing();
         	$scope.board = problem.solve();
-			$scope.message = (problem.cost != 0 ? "Solution not found!" : "Solution found!");
+			if (problem.cost != 0) {
+                $scope.message = "Solution not found!";
+                $scope.cls_message = "alert-danger";
+            } else {
+                $scope.message = "Solution found!";
+                $scope.cls_message = "alert-success";
+            };
 		};
     });
