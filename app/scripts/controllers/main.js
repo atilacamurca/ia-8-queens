@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('ia8queensApp')
-    .controller('MainCtrl', function ($scope, HillClimbing, Genetic) {
+    .controller('MainCtrl', function ($scope, HillClimbing, Genetic, SimulatedAnnealing) {
         $scope.board = [
             [0, 0, 0, 1, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 1],
@@ -14,6 +14,7 @@ angular.module('ia8queensApp')
         ];
 		$scope.message = null;
         $scope.cls_message = null;
+        $scope.g_info = null;
         $scope.strategies = ['hc', 'sa', 'g'];
         $scope.strategy = 'g';
         
@@ -30,6 +31,12 @@ angular.module('ia8queensApp')
             PBCMax: 4,
             maxLength: 8
         };
+        $scope.sa_options = {
+            initialTemperature: 30.0,
+            finalTemperature: 0.5,
+            alpha: 0.99,
+            stepsPerChange: 100
+        };
         
         $scope.color = function(x, y) {
             var isBlack = (x % 2 === 0);
@@ -43,6 +50,11 @@ angular.module('ia8queensApp')
         console.log(solution);
         console.log(problem.goalTest(solution));*/
 		$scope.solve = function () {
+            // reset values
+            $scope.message = null;
+            $scope.cls_message = null;
+            $scope.g_info = null;
+            
             if ($scope.strategy === "hc") {
                 var problem = new HillClimbing();
                 $scope.board = problem.solve();
@@ -69,25 +81,47 @@ angular.module('ia8queensApp')
                 );
                 problem.initializeChromosomes();
                 problem.solve();
-                var solution = _.filter(problem.solution.data, function (value) { return !_.isUndefined(value) });
+                var solution = problem.solution.data;
                 console.log("best solution: ", solution);
                 if (solution.length === 8) {
-                    for (var i = 0; i < solution.length; i++) {
-                        for (var j = 0; j < solution.length; j++) {
-                            if (solution[i] === j) {
-                                $scope.board[i][j] = 1;
-                            } else {
-                                $scope.board[i][j] = 0;
-                            }
-                        }
-                    }
+                    fillBoard(solution);
                     $scope.message = "Solution found!";
                     $scope.cls_message = "alert-success";
                 } else {
                     $scope.message = "Solution not found!";
                     $scope.cls_message = "alert-danger";
                 }
-            }
+                $scope.g_info = {
+                    epoch: problem.epoch,
+                    mutations: problem.mutations,
+                    childCount: problem.childCount,
+                    solution: solution
+                };
+            } else if ($scope.strategy === "sa") {
                 
+                var problem = new SimulatedAnnealing(
+                    $scope.sa_options.initialTemperature,
+                    $scope.sa_options.finalTemperature,
+                    $scope.sa_options.alpha,
+                    $scope.sa_options.stepsPerChange
+                );
+                var solution = problem.solve();
+                console.log(solution);
+                fillBoard(solution);
+                $scope.message = "Solution found!";
+                $scope.cls_message = "alert-success";
+            }
 		};
+        
+        var fillBoard = function(arraySolution) {
+            for (var i = 0; i < arraySolution.length; i++) {
+                for (var j = 0; j < arraySolution.length; j++) {
+                    if (arraySolution[i] === j) {
+                        $scope.board[i][j] = 1;
+                    } else {
+                        $scope.board[i][j] = 0;
+                    }
+                }
+            }
+        };
     });

@@ -2,6 +2,9 @@
 
 angular.module('ia8queensApp')
     .factory('Genetic', function (Chromosome) {
+        /**
+         * TIP: _.random is inclusive while in python's random.randrange is exclusive!
+         */
         var Genetic = Class.extend({
             init: function (startSize, maxEpochs, matingProbability, mutationRate,
                              minSelect, maxSelect, generation, minShuffles,
@@ -28,7 +31,7 @@ angular.module('ia8queensApp')
             getExclusiveRandomInteger: function (high, numberA) {
                 var numberB = 0;
                 while (true) {
-                    numberB = _.random(0, high);
+                    numberB = _.random(0, high - 1);
                     if (numberB !== numberA)
                         break;
                 }
@@ -40,7 +43,7 @@ angular.module('ia8queensApp')
                 if (high !== low) {
                     while (! done) {
                         done = true;
-                        getRand = _.random(low, high);
+                        getRand = _.random(low, high - 1);
                         var len = arrayA.length;
                         // verify if random number is in array
                         for (var i = 0; i < len; i++) {
@@ -131,13 +134,14 @@ angular.module('ia8queensApp')
             exchangeMutation: function (index, exchanges) {
                 var i           = 0,
                     tempData    = 0,
-                    chromo      = new Chromosome(this.mMaxLength),
+                    //chromo      = new Chromosome(this.mMaxLength),
+                    chromo      = null,
                     gene1       = 0,
                     gene2       = 0;
                 
                 chromo = this.population[index];
                 while (true) {
-                    gene1 = _.random(0, this.mMaxLength);
+                    gene1 = _.random(0, this.mMaxLength - 1);
                     gene2 = this.getExclusiveRandomInteger(this.mMaxLength, gene1);
                     
                     // Exchange the chosen genes.
@@ -159,7 +163,7 @@ angular.module('ia8queensApp')
                     var chromoIndex = size - 1;
                     
                     // Randomly choose the number of shuffles to perform.
-                    var shuffles = _.random(this.mMinShuffles, this.mMaxShuffles);
+                    var shuffles = _.random(this.mMinShuffles, this.mMaxShuffles - 1);
                     this.exchangeMutation(chromoIndex, shuffles);
                     chromo = this.population[chromoIndex];
                     chromo.computeConflicts();
@@ -170,7 +174,8 @@ angular.module('ia8queensApp')
              */
             getFitness: function () {
                 var popSize = this.population.length;
-                var chromo = new Chromosome(this.mMaxLength);
+                // var chromo = new Chromosome(this.mMaxLength);
+                var chromo = null;
                 var bestScore = 0,
                     worstScore = 0;
                 
@@ -189,14 +194,13 @@ angular.module('ia8queensApp')
             },
             rouletteSelection: function () {
                 var j               = 0,
-                    popSize         = 0,
+                    popSize         = this.population.length,
                     genTotal        = 0.0,
                     selTotal        = 0.0,
                     rouletteSpin    = 0.0,
                     chromo1         = new Chromosome(this.mMaxLength),
                     chromo2         = new Chromosome(this.mMaxLength);
                 
-                popSize = this.population.length;
                 for (var i = 0; i < popSize; i++) {
                     chromo1 = this.population[i];
                     genTotal += chromo1.fitness;
@@ -205,11 +209,11 @@ angular.module('ia8queensApp')
                 
                 for (var i = 0; i < popSize; i++) {
                     chromo1 = this.population[i];
-                    chromo1.selectionProbability = chromo1.fitness / genTotal;
+                    chromo1.selectionProbability = (chromo1.fitness / genTotal);
                 }
                 
                 for (var i = 0; i < this.mOffspringPerGeneration; i++) {
-                    rouletteSpin = _.random(0, 99);
+                    rouletteSpin = _.random(0, 99 - 1);
                     j = 0;
                     selTotal = 0.0;
                     while (true) {
@@ -233,11 +237,12 @@ angular.module('ia8queensApp')
             },
             chooseFirstParent: function () {
                 var parent      = 0,
-                    chromo      = new Chromosome(this.mMaxLength);
+                    // chromo      = new Chromosome(this.mMaxLength);
+                    chromo      = null;
                 
                 while (true) {
                     // Randomly choose an eligible parent.
-                    parent = _.random(0, this.population.length - 1);
+                    parent = _.random(0, this.population.length - 2);
                     chromo = this.population[parent];
                     if (chromo.selected) {
                         break;
@@ -250,7 +255,7 @@ angular.module('ia8queensApp')
                 var chromo = new Chromosome(this.mMaxLength);
                 while (true) {
                     // Randomly choose an eligible parent.
-                    parentB = _.random(0, this.population.length - 1);
+                    parentB = _.random(0, this.population.length - 2);
                     if (parentB != parentA) {
                         chromo = this.population[parentB];
                         if (chromo.selected) {
@@ -266,7 +271,7 @@ angular.module('ia8queensApp')
                     newChromo1 = this.population[child1],
                     newChromo2 = this.population[child2];
                 
-                var crossPoint1 = _.random(0, this.mMaxLength);
+                var crossPoint1 = _.random(0, this.mMaxLength - 1);
                 var crossPoint2 = this.getExclusiveRandomInteger(this.mMaxLength, crossPoint1);
                 if (crossPoint2 < crossPoint1) {
                     var aux = crossPoint1;
@@ -330,7 +335,7 @@ angular.module('ia8queensApp')
                     newChromo2  = this.population[child2];
                 
                 // Choose and sort the crosspoints.
-                numPoints = _.random(0, this.mPBCMax); // if PBC_MAX is set any higher than 6 or 8.
+                numPoints = _.random(0, this.mPBCMax - 1); // if PBC_MAX is set any higher than 6 or 8.
                 var crossPoints = arrayOf(numPoints);
                 for (var i = 0; i < numPoints; i++) {
                     crossPoints[i] = this.getExclusiveRandomIntegerByArray(0, this.mMaxLength - 1, crossPoints);
@@ -419,7 +424,7 @@ angular.module('ia8queensApp')
                     thisChrome  = this.population[index];
                 
                 // Randomly choose a section to be displaced
-                point1 = _.random(0, this.mMaxLength);
+                point1 = _.random(0, this.mMaxLength - 1);
                 // Generate re-insertion point
                 var candidate = this.mMaxLength - (point1 + 2);
                 if (candidate <= 0) {
@@ -471,7 +476,7 @@ angular.module('ia8queensApp')
                 for (var i = 0; i < this.mOffspringPerGeneration; i++) {
                     parentA = this.chooseFirstParent();
                     // Test probability of mating
-                    getRand = _.random(0, 100);
+                    getRand = _.random(0, 100 - 1);
                     if (getRand <= this.mMatingProbability * 100) {
                         parentB = this.chooseSecondParent(parentA);
                         newChromo1 = new Chromosome(this.mMaxLength);
@@ -496,7 +501,7 @@ angular.module('ia8queensApp')
                         this.childCount += 2;
                         // Schedule next mutation
                         if ((this.childCount % this.mathRound(1.0 / this.mMutationRate)) == 0) {
-                            this.nextMutation = this.childCount + _.random(0, this.mathRound(1.0 / this.mMutationRate));
+                            this.nextMutation = this.childCount + _.random(0, this.mathRound(1.0 / this.mMutationRate) - 1);
                         }
                     }
                 }
@@ -518,7 +523,7 @@ angular.module('ia8queensApp')
                     done            = false;
                 
                 this.mutations = 0;
-                this.nextMutation = _.random(0, this.mathRound(1.0 / this.mMutationRate));
+                this.nextMutation = _.random(0, this.mathRound(1.0 / this.mMutationRate) - 1);
                 
                 while (! done) {
                     popSize = this.population.length;
