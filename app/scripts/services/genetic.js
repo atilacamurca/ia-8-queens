@@ -417,7 +417,7 @@ angular.module('ia8queensApp')
             displacementMutation: function (index) {
                 var j           = 0,
                     point1      = 0,
-                    length      = 0, // seems not used
+                    //length      = 0, // seems not used
                     point2      = 0,
                     tempArray1  = arrayOf(this.mMaxLength),
                     tempArray2  = arrayOf(this.mMaxLength),

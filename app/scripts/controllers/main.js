@@ -15,8 +15,8 @@ angular.module('ia8queensApp')
 		$scope.message = null;
         $scope.cls_message = null;
         $scope.g_info = null;
-        $scope.strategies = ['hc', 'sa', 'g'];
-        $scope.strategy = 'g';
+        $scope.strategies = ['hc', 'sa', 'ga'];
+        $scope.strategy = 'ga';
         
         $scope.g_options = {
             startSize: 75, // Population size at start
@@ -45,10 +45,6 @@ angular.module('ia8queensApp')
             return isBlack;
         };
         
-        /*var problem = new NQueensProblem();
-        var solution = hillClimbing.solve(problem);
-        console.log(solution);
-        console.log(problem.goalTest(solution));*/
 		$scope.solve = function () {
             // reset values
             $scope.message = null;
@@ -65,7 +61,7 @@ angular.module('ia8queensApp')
                     $scope.message = "Solution found!";
                     $scope.cls_message = "alert-success";
                 }
-            } else if ($scope.strategy === "g") {
+            } else if ($scope.strategy === "ga") {
                 var problem = new Genetic(
                     $scope.g_options.startSize,
                     $scope.g_options.maxEpochs,

@@ -104,7 +104,7 @@ angular.module('ia8queensApp')
                     temperature *= this.alpha;
                     
                     // if we have solution no point continuing to loop
-                    if (this.bestEnergy < 1.0) {
+                    if (this.bestEnergy === 0) {
                         // solution found;
                         break; // break while
                     }
