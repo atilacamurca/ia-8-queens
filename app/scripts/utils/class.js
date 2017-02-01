@@ -62,6 +62,10 @@
         // And make this class extendable
         Class.extend = arguments.callee;
 
+        if (window) {
+            window.Class = Class;
+        }
+
         return Class;
     };
 })();
