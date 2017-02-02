@@ -15,9 +15,35 @@ angular.module('ia8queensApp')
 		$scope.message = null;
         $scope.cls_message = null;
         $scope.g_info = null;
-        $scope.strategies = ['hc', 'sa', 'ga'];
-        $scope.strategy = 'ga';
-        
+        $scope.cnf = {
+            dimacs: '',
+            numQueens: 4,
+            options: [4, 5, 6, 7, 8]
+        };
+        $scope.strategies = [
+            {
+                id: 'hc',
+                description: 'Hill Climbing'
+            },
+            {
+                id: 'sa',
+                description: 'Simulated Annealing'
+            },
+            {
+                id: 'ga',
+                description: 'Genetic Algorithm'
+            },
+            {
+                id: 'tab',
+                description: 'Tableaux'
+            },
+            {
+                id: 'res',
+                description: 'Resolution'
+            }
+        ];
+        $scope.strategy = 'tab';
+
         $scope.g_options = {
             startSize: 75, // Population size at start
             maxEpochs: 1000, // Arbitrary number of test cycles
@@ -37,20 +63,20 @@ angular.module('ia8queensApp')
             alpha: 0.99,
             stepsPerChange: 100
         };
-        
+
         $scope.color = function(x, y) {
             var isBlack = (x % 2 === 0);
             var isBlack = (y % 2 === 0 ? isBlack : !isBlack);
-            
+
             return isBlack;
         };
-        
+
 		$scope.solve = function () {
             // reset values
             $scope.message = null;
             $scope.cls_message = null;
             $scope.g_info = null;
-            
+
             if ($scope.strategy === "hc") {
                 var problem = new HillClimbing();
                 $scope.board = problem.solve();
@@ -94,7 +120,7 @@ angular.module('ia8queensApp')
                     solution: solution
                 };
             } else if ($scope.strategy === "sa") {
-                
+
                 var problem = new SimulatedAnnealing(
                     $scope.sa_options.initialTemperature,
                     $scope.sa_options.finalTemperature,
@@ -106,9 +132,13 @@ angular.module('ia8queensApp')
                 fillBoard(solution);
                 $scope.message = "Solution found!";
                 $scope.cls_message = "alert-success";
+            } else if ($scope.strategy === 'tab') {
+                generateDimacsCNF();
+            } else if ($scope.strategy === 'res') {
+                generateDimacsCNF();
             }
 		};
-        
+
         var fillBoard = function(arraySolution) {
             for (var i = 0; i < arraySolution.length; i++) {
                 for (var j = 0; j < arraySolution.length; j++) {
@@ -120,4 +150,27 @@ angular.module('ia8queensApp')
                 }
             }
         };
+
+        function generateDimacsCNF() {
+            var nq = $scope.cnf.numQueens;
+            var cntr1 = 4;
+            var line1 = '';
+            var result = 'c\n';
+            result += 'c DIMACS generated for ' + nq + ' queens\n';
+            result += 'c\n';
+
+            // formula
+            result += 'p cnf ' + (nq * nq) + ' ' + (cntr1) + '\n'
+
+            // constraint: at least one queen per line
+            for (var i = 0; i < nq; i++) {
+                for (var j = 0; j < nq; j++) {
+                    line1 += '' + (i + 1) + '' + (j + 1) + ' ';
+                }
+                line1 += '0\n';
+            }
+            result += line1;
+
+            $scope.cnf.dimacs = result;
+        }
     });
