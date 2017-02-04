@@ -153,23 +153,40 @@ angular.module('ia8queensApp')
 
         function generateDimacsCNF() {
             var nq = $scope.cnf.numQueens;
-            var cntr1 = 4;
-            var line1 = '';
+            var cntr1 = nq;
+            var cntr2 = 0
+            var cntr3 = 0
             var result = 'c\n';
             result += 'c DIMACS generated for ' + nq + ' queens\n';
             result += 'c\n';
 
-            // formula
-            result += 'p cnf ' + (nq * nq) + ' ' + (cntr1) + '\n'
-
             // constraint: at least one queen per line
+            var line1 = 'c at least one queen per line\n'
+            // constraint: not 2 queens on the same line
+            var line2 = 'c not (2 queens on the same line)\n'
+            // constraint: not 2 queens on the same column
+            var line3 = 'c not (2 queens on the same column)\n'
             for (var i = 0; i < nq; i++) {
                 for (var j = 0; j < nq; j++) {
-                    line1 += '' + (i + 1) + '' + (j + 1) + ' ';
+                    line1 += '' + ((i * nq) + j + 1) + ' '
+
+                    for (var k = j + 1; k < nq; k++) {
+                        line2 += '-' + ((i * nq) + j + 1) + ' '
+                        line2 += '-' + ((i * nq) + k + 1) + ' 0\n'
+                        cntr2++
+
+                        line3 += '-' + ((j * nq) + i + 1) + ' '
+                        line3 += '-' + ((k * nq) + i + 1) + ' 0\n'
+                        cntr3++
+                    }
                 }
-                line1 += '0\n';
+                line1 += '0\n'
             }
+            // formula
+            result += 'p cnf ' + (nq * nq) + ' ' + (cntr1 + cntr2 + cntr3) + '\n'
             result += line1;
+            result += line2;
+            result += line3;
 
             $scope.cnf.dimacs = result;
         }
