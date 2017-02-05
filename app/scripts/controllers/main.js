@@ -156,6 +156,7 @@ angular.module('ia8queensApp')
             var cntr1 = nq;
             var cntr2 = 0
             var cntr3 = 0
+            var cntr4 = 0
             var result = 'c\n';
             result += 'c DIMACS generated for ' + nq + ' queens\n';
             result += 'c\n';
@@ -166,11 +167,13 @@ angular.module('ia8queensApp')
             var line2 = 'c not (2 queens on the same line)\n'
             // constraint: not 2 queens on the same column
             var line3 = 'c not (2 queens on the same column)\n'
+            // constraint: not 2 queens on the same right diagonal
+            var line4 = 'c not (2 queens on the same diagonal)\n'
             for (var i = 0; i < nq; i++) {
                 for (var j = 0; j < nq; j++) {
                     line1 += '' + ((i * nq) + j + 1) + ' '
 
-                    for (var k = j + 1; k < nq; k++) {
+                    for (var k = j + 1, m = 0; k < nq; k++) {
                         line2 += '-' + ((i * nq) + j + 1) + ' '
                         line2 += '-' + ((i * nq) + k + 1) + ' 0\n'
                         cntr2++
@@ -178,15 +181,24 @@ angular.module('ia8queensApp')
                         line3 += '-' + ((j * nq) + i + 1) + ' '
                         line3 += '-' + ((k * nq) + i + 1) + ' 0\n'
                         cntr3++
+
+                        if (i + 1 < nq && j + 1 < nq
+                                && m + i < nq - 1 && m + j < nq - 1) {
+                            m++
+                            line4 += '-' + (i + 1) + '' + (j + 1) + ' '
+                            line4 += '-' + (m + i + 1) + (m + j + 1) + ' 0\n'
+                            cntr4++
+                        }
                     }
                 }
                 line1 += '0\n'
             }
             // formula
-            result += 'p cnf ' + (nq * nq) + ' ' + (cntr1 + cntr2 + cntr3) + '\n'
+            result += 'p cnf ' + (nq * nq) + ' ' + (cntr1 + cntr2 + cntr3 + cntr4) + '\n'
             result += line1;
             result += line2;
             result += line3;
+            result += line4;
 
             $scope.cnf.dimacs = result;
         }
