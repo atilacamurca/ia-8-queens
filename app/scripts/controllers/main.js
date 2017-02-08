@@ -133,9 +133,9 @@ angular.module('ia8queensApp')
                 $scope.message = "Solution found!";
                 $scope.cls_message = "alert-success";
             } else if ($scope.strategy === 'tab') {
-                generateDimacsCNF();
+                $scope.cnf.dimacs = generateDimacsCNF($scope.cnf.numQueens);
             } else if ($scope.strategy === 'res') {
-                generateDimacsCNF();
+                $scope.cnf.dimacs = generateDimacsCNF($scope.cnf.numQueens);
             }
 		};
 
@@ -151,12 +151,13 @@ angular.module('ia8queensApp')
             }
         };
 
-        function generateDimacsCNF() {
-            var nq = $scope.cnf.numQueens;
+        function generateDimacsCNF(nq) {
+
             var cntr1 = nq;
             var cntr2 = 0
-            var cntr3 = 0
+            // cntr3 same amount of cntr2
             var cntr4 = 0
+            // cntr5 same amount of cntr4
             var result = 'c\n';
             result += 'c DIMACS generated for ' + nq + ' queens\n';
             result += 'c\n';
@@ -168,19 +169,20 @@ angular.module('ia8queensApp')
             // constraint: not 2 queens on the same column
             var line3 = 'c not (2 queens on the same column)\n'
             // constraint: not 2 queens on the same right diagonal
-            var line4 = 'c not (2 queens on the same diagonal)\n'
+            var line4 = 'c not (2 queens on the same right diagonal)\n'
+            // constraint: not 2 queens on the same left diagonal
+            var line5 = 'c not (2 queens on the same left diagonal)\n'
             for (var i = 0; i < nq; i++) {
                 for (var j = 0; j < nq; j++) {
-                    line1 += '' + ((i * nq) + j + 1) + ' '
+                    line1 += '' + (i + 1) + '' + (j + 1) + ' '
 
-                    for (var k = j + 1, m = 0; k < nq; k++) {
-                        line2 += '-' + ((i * nq) + j + 1) + ' '
-                        line2 += '-' + ((i * nq) + k + 1) + ' 0\n'
+                    for (var k = j + 1, m = 0, n = 0, p = k; k < nq; k++) {
+                        line2 += '-' + (i + 1) + '' + (j + 1) + ' '
+                        line2 += '-' + (i + 1) + '' + (k + 1) + ' 0\n'
                         cntr2++
 
-                        line3 += '-' + ((j * nq) + i + 1) + ' '
-                        line3 += '-' + ((k * nq) + i + 1) + ' 0\n'
-                        cntr3++
+                        line3 += '-' + (j + 1) + '' + (i + 1) + ' '
+                        line3 += '-' + (k + 1) + '' + (i + 1) + ' 0\n'
 
                         if (i + 1 < nq && j + 1 < nq
                                 && m + i < nq - 1 && m + j < nq - 1) {
@@ -189,17 +191,25 @@ angular.module('ia8queensApp')
                             line4 += '-' + (m + i + 1) + (m + j + 1) + ' 0\n'
                             cntr4++
                         }
+
+                        if (j >= 0 && p + i < nq) {
+                            n++
+                            line5 += '-' + (i + 1) + '' + (k + 1) + ' '
+                            line5 += '-' + (p + i + 1) + '' + (n) + ' 0\n'
+                        }
                     }
                 }
                 line1 += '0\n'
             }
             // formula
-            result += 'p cnf ' + (nq * nq) + ' ' + (cntr1 + cntr2 + cntr3 + cntr4) + '\n'
-            result += line1;
-            result += line2;
-            result += line3;
-            result += line4;
+            result += 'p cnf ' + (nq * nq) +
+                ' ' + (cntr1 + (cntr2 * 2) + (cntr4 * 2)) + '\n'
+            result += line1
+            result += line2
+            result += line3
+            result += line4
+            result += line5
 
-            $scope.cnf.dimacs = result;
+            return result
         }
     });
